@@ -30,7 +30,7 @@ body {
 }
 
 .app {
-  max-width: 750px;
+  /* max-width: 750px; */
   margin: 0 auto;
   background-color: white;
   padding: 0;
@@ -207,7 +207,7 @@ body {
   padding: 8px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  background-color: white;
+  /* background-color: white; */
 }
 
 .basic-auth-fields,
