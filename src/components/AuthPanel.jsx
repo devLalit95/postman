@@ -11,7 +11,7 @@ const authOptions = [
     {
         value: "bearer",
         label: "Bearer token",
-        sub: "Authorization: Bearer …",
+        sub: "Authorization: Bearer ...",
         iconText: "BT",
         iconClass: "auth-bearer",
     },
@@ -51,32 +51,36 @@ export default function AuthPanel({
     const selectedAuth = authOptions.find((option) => option.value === authType);
 
     return (
-        <section className="space-y-4  border border-pm-border bg-pm-panel p-5 shadow-panel card">
+        <section className="config-section">
             <div className="section-head">
                 <div>
                     <h2>Authorization</h2>
-                    <p>Choose how the request should authenticate.</p>
+                    <p>{selectedAuth?.label ?? "No auth"}</p>
                 </div>
 
                 <div ref={authMenuRef} className="dd-wrap">
                     <button
                         type="button"
                         className={`dd-trigger ${authOpen ? "open" : ""}`}
+                        aria-haspopup="listbox"
+                        aria-expanded={authOpen}
                         onClick={() => setAuthOpen((open) => !open)}
                     >
                         <span className={`auth-icon ${selectedAuth?.iconClass ?? "auth-none"}`}>
                             {selectedAuth?.iconText ?? "No"}
                         </span>
                         <span>{selectedAuth?.label ?? "No auth"}</span>
-                        <span className="chevron">▼</span>
+                        <span className="chevron" aria-hidden="true">v</span>
                     </button>
 
-                    <div className={`dd-menu ${authOpen ? "show" : ""}`}>
+                    <div className={`dd-menu ${authOpen ? "show" : ""}`} role="listbox">
                         {authOptions.map((option) => (
                             <button
                                 key={option.value}
                                 type="button"
                                 className={`dd-item ${authType === option.value ? "active" : ""}`}
+                                role="option"
+                                aria-selected={authType === option.value}
                                 onClick={() => {
                                     setAuthType(option.value);
                                     setAuthOpen(false);
@@ -94,7 +98,7 @@ export default function AuthPanel({
             </div>
 
             {authType === "basic" && (
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="auth-fields">
                     <input
                         type="text"
                         value={username}
@@ -113,13 +117,15 @@ export default function AuthPanel({
             )}
 
             {authType === "bearer" && (
-                <input
-                    type="text"
-                    value={token}
-                    onChange={(e) => setToken(e.target.value)}
-                    placeholder="Bearer token"
-                    className="input-field"
-                />
+                <div className="auth-fields single">
+                    <input
+                        type="text"
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
+                        placeholder="Bearer token"
+                        className="input-field"
+                    />
+                </div>
             )}
         </section>
     );

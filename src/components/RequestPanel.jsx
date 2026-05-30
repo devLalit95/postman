@@ -54,12 +54,20 @@ export default function RequestPanel({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
+  const handleMethodSelect = (nextMethod) => {
+    setMethod(nextMethod);
+    if ((nextMethod === "POST" || nextMethod === "PUT") && !body.trim()) {
+      setBody("{\n  \n}");
+    }
+    setMethodOpen(false);
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6  border border-pm-border bg-pm-panel p-5 shadow-panel card">
-      <div className="flex w-full items-center gap-4">
-        <div style={{ width: 180 }} className="inner-card">
-          <div className="inner-label">
-            <span>Method</span>
+    <form onSubmit={onSubmit} className="request-form panel">
+      <div className="request-line">
+        <div className="field-group method-field">
+          <div className="field-meta">
+            <span className="field-label">Method</span>
             <span className={`badge ${methodLabelStyles[method]}`}>{method}</span>
           </div>
 
@@ -67,13 +75,15 @@ export default function RequestPanel({
             <button
               type="button"
               className={`dd-trigger method-${method.toLowerCase()} ${methodOpen ? "open" : ""}`}
+              aria-haspopup="listbox"
+              aria-expanded={methodOpen}
               onClick={() => setMethodOpen((open) => !open)}
             >
               <span>{method}</span>
-              <span className="chevron">▼</span>
+              <span className="chevron" aria-hidden="true">v</span>
             </button>
 
-            <div className={`dd-menu ${methodOpen ? "show" : ""}`}>
+            <div className={`dd-menu ${methodOpen ? "show" : ""}`} role="listbox">
               {methodSections.map((section, sectionIndex) => (
                 <React.Fragment key={section}>
                   <div className="dd-section-label">{section}</div>
@@ -84,10 +94,9 @@ export default function RequestPanel({
                         key={option.value}
                         type="button"
                         className={`dd-item ${method === option.value ? "active" : ""} ${option.value === "DELETE" ? "danger" : ""}`}
-                        onClick={() => {
-                          setMethod(option.value);
-                          setMethodOpen(false);
-                        }}
+                        role="option"
+                        aria-selected={method === option.value}
+                        onClick={() => handleMethodSelect(option.value)}
                       >
                         <span className={`method-pill ${option.variant}`}>{option.value}</span>
                         <span className="item-label">{option.label}</span>
@@ -100,35 +109,25 @@ export default function RequestPanel({
           </div>
         </div>
 
-        <div className="inner-card flex-1">
-          <div className="inner-label"><span>Request URL</span></div>
+        <div className="field-group url-field">
+          <label htmlFor="request-url" className="field-label">Request URL</label>
           <input
+            id="request-url"
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://api.example.com/v1/playlists"
             required
-            className="input-field"
+            className="input-field request-url-input"
           />
         </div>
 
-        <div style={{ width: 170 }}>
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-send w-full"
-          >
-            {loading ? "Sending..." : "Send Request"}
+        <div className="send-slot">
+          <button type="submit" disabled={loading} className="btn-send">
+            {loading ? "Sending..." : "Send"}
           </button>
         </div>
       </div>
-
-      {/* <div className="mt-4">
-        <div className="preview-box">
-          <strong>Request preview</strong>
-          This panel keeps your request configuration separate from the response. It is easy to extend with more auth modes and reusable headers.
-        </div>
-      </div> */}
 
       <HeadersEditor
         headers={headers}
@@ -138,21 +137,19 @@ export default function RequestPanel({
       />
 
       {(method === "POST" || method === "PUT") && (
-        <section className="space-y-3 rounded-[28px] border border-pm-border bg-pm-bg/75 p-5 shadow-sm">
-          <div className="flex items-center justify-between">
+        <section className="config-section request-body">
+          <div className="body-header">
             <div>
-              <h3 className="text-lg font-semibold text-pm-text">Request Body</h3>
-              <p className="text-sm text-pm-muted">Provide a JSON payload for POST and PUT requests.</p>
+              <h2>Request Body</h2>
+              <p>JSON payload</p>
             </div>
-            <span className="rounded-full border border-pm-border bg-pm-panel/80 px-3 py-1 text-xs font-semibold text-pm-muted">
-              JSON payload
-            </span>
+            <span className="soft-pill">JSON</span>
           </div>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder='{"name": "Chill Vibes", "tracks": 12}'
-            className="min-h-[180px] w-full rounded-[28px] border border-pm-border bg-white px-4 py-4 text-sm text-pm-text outline-none transition focus:border-pm-orange focus:ring-2 focus:ring-pm-orange/20"
+            placeholder='{\n  "email": "user@example.com",\n  "password": "password"\n}'
+            className="input-field body-textarea"
           />
         </section>
       )}

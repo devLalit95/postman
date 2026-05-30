@@ -7,7 +7,7 @@ function App() {
   const [method, setMethod] = useState("GET");
   const [url, setUrl] = useState("http://localhost:8080/");
   const [headers, setHeaders] = useState([{ key: "", value: "" }]);
-  const [body, setBody] = useState("");
+  const [body, setBody] = useState("{\n  \n}");
   const [authType, setAuthType] = useState("none");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -32,10 +32,14 @@ function App() {
     setHeaders((current) => current.filter((_, idx) => idx !== index));
   };
 
+  const handleUseBearerToken = (nextToken) => {
+    setAuthType("bearer");
+    setToken(nextToken);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setResponse(null);
 
     try {
       const requestHeaders = headers.reduce((acc, header) => {
@@ -68,7 +72,10 @@ function App() {
       const res = await fetch(url, options);
       const endTime = performance.now();
 
-      const responseData = await res.json().catch(() => null);
+      const contentType = res.headers.get("content-type") || "";
+      const responseData = contentType.includes("application/json")
+        ? await res.json().catch(() => null)
+        : await res.text();
 
       setResponse({
         status: res.status,
@@ -85,18 +92,16 @@ function App() {
   };
 
   return (
-    <main className="min-h-screen bg-pm-bg px-4 py-8 text-pm-text sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 test">
-        <header className=" border border-pm-border  test p-6 shadow-panel card">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-            <div className="header-left space-y-3 ">
-              <p className="eyebrow">API Sandbox</p>
-              <h1 className="text-3xl font-semibold text-pm-text">Postman-style API Tester</h1>
-              <p className="max-w-2xl text-sm leading-7 text-pm-muted">
-                Build requests, inspect results, and reuse components across your API playground.
-              </p>
-            </div>
-            <div className="header-right">Central theme: orange + neutral palette</div>
+    <main className="app-shell">
+      <div className="workspace">
+        <header className="app-header">
+          <div className="header-left">
+            <p className="eyebrow">API Sandbox</p>
+            <h1>Postman-style API Tester</h1>
+          </div>
+          <div className="header-right" aria-label="Application status">
+            <span className="status-dot" aria-hidden="true" />
+            <span>Ready</span>
           </div>
         </header>
 
@@ -123,7 +128,13 @@ function App() {
           setToken={setToken}
         />
 
-        <ResponsePanel response={response} viewMode={viewMode} setViewMode={setViewMode} />
+        <ResponsePanel
+          response={response}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          loading={loading}
+          onUseBearerToken={handleUseBearerToken}
+        />
       </div>
     </main>
   );
