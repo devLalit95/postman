@@ -1,13 +1,42 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite + React</title>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "pm-orange": "#FF6C37",
+            "pm-orange-dark": "#E85A25",
+            "pm-orange-light": "#FFF0EB",
+            "pm-sidebar": "#1E1E2E",
+            "pm-sidebar-hover": "#2A2A3E",
+            "pm-sidebar-active": "#FF6C3722",
+            "pm-bg": "#F8F7F5",
+            "pm-panel": "#FFFFFF",
+            "pm-border": "#E5E3DF",
+            "pm-text": "#1A1A2E",
+            "pm-muted": "#6B6B80",
+            "pm-get": "#49CC90",
+            "pm-post": "#FF6C37",
+            "pm-put": "#FCA130",
+            "pm-del": "#F93E3E",
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
